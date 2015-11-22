@@ -1,0 +1,20 @@
+{
+  "name": "Node-APIs",
+  "version": "0.0.2",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.8.7",
+    "mysql": "^2.5.5",
+    "body-parser": "^1.12.0",
+    "sequelize": "~1.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/anlijudavid/API_REST_NodeJS.git"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ]
+}
