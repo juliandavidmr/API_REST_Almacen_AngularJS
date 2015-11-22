@@ -2,24 +2,18 @@
   "dev": {
     "driver": "mysql",
     "user": "root",
-    "database": "bd_almacen_test",
+    "database": "bd_almacen",
     "password": "root"
   },
   "production": {
     "driver": "mysql",
     "user": "root",
-    "database": "bd_almacen_test"
+    "database": "bd_almacen"
   },
   "local": {
     "host": "localhost",
     "user": "root",
     "password": "root",
-    "database": "bd_almacen_test"
-  },
-  "local_sequalize": {
-    "host": "localhost",
-    "user": "root",
-    "password": "root",
-    "database": "bd_almacen_test"
+    "database": "bd_almacen"
   }
 }

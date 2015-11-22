@@ -58,7 +58,7 @@ app.get('/generos', function (req, res) {
 	console.log("Consultando todos los generos.");
 	permitir_todo(res);
 
-	connection.query("SELECT * from genero;", function (err, rows, fields) {
+	connection.query("SELECT * from Genero;", function (err, rows, fields) {
 		if (err) {
 			res.status(100);
 			res.send("Error al consultar las cuentas.");
@@ -83,30 +83,191 @@ app.post('/genero/add/:Descripcion', function (req, res) {
 	if (!!Descripcion) {
 
 		//Personas
-		var sql = "INSERT INTO genero(Descripcion) VALUES(?)";
+		var sql = "INSERT INTO Genero(Descripcion) VALUES(?)";
+		console.log(sql);
 		connection.query(sql, [Descripcion], function (err, rows) {
 			if (err) {
 				res.status(100);
 				res.send("Error: " + err);
 			} else {
 				console.log("Se insertaron los datos de persona.");
-				res.status(500);
-				res.send(1);
+				var aql = "SELECT * from Genero WHERE Descripcion='" + Descripcion + "';";
+				connection.query(aql, function (err, rows, fields) {
+					if (err) {
+						console.log("Error al realizar la consulta, " + err);
+						res.send("Error al realizar la consulta, " + err);
+					} else if (rows.length != 0) {
+						console.log("Filas consultadas: " + rows);
+						res.json(rows);
+					}
+				});
 			}
-										
-			//Si llega hasta acá es porque ingresó la persona. Procedemos a consultar el ID de esa persona.
-			var aql = "SELECT * from genero WHERE Descripcion='" + Descripcion + "';";
-			connection.query(aql, function (err, rows, fields) {
-				if (err) {
-					console.log("Error al realizar la consulta, " + err);
-					res.send("Error al realizar la consulta, " + err);
-				} else if (rows.length != 0) {
-					console.log("Filas consultadas: " + rows);
-					res.json(rows);
-				} else {
-					
-				}
-			});
+		});
+	}
+});
+
+app.get('/categorias', function (req, res) {
+	console.log("Consultando todos las categorias.");
+	permitir_todo(res);
+
+	connection.query("SELECT * from Categoria;", function (err, rows, fields) {
+		if (err) {
+			res.status(100);
+			res.send("Error al consultar las categorias.");
+		} else if (rows.length != 0) {
+			res.status(200);
+			res.json(rows);
+		} else {
+			res.status(100);
+			res.send("No hay categoria registradas.");
+		}
+	});
+});
+
+
+app.post('/categoria/add/:Descripcion', function (req, res) {
+	console.log("Entro al metodo de insertar categoria");
+
+	permitir_todo(res);
+	//variables de persona
+	var Descripcion = req.params.Descripcion;
+
+	if (!!Descripcion) {
+
+		//Personas
+		var sql = "INSERT INTO Categoria(Descripcion) VALUES(?)";
+		console.log(sql);
+		connection.query(sql, [Descripcion], function (err, rows) {
+			if (err) {
+				res.status(100);
+				res.send("Error: " + err);
+			} else {
+				console.log("Se insertaron los datos de persona.");
+				var aql = "SELECT * from Categoria WHERE Descripcion='" + Descripcion + "';";
+				connection.query(aql, function (err, rows, fields) {
+					if (err) {
+						console.log("Error al realizar la consulta, " + err);
+						res.send("Error al realizar la consulta, " + err);
+					} else if (rows.length != 0) {
+						console.log("Filas consultadas: " + rows);
+						res.json(rows);
+					}
+				});
+			}
+		});
+	}
+});
+
+app.get('/roles', function (req, res) {
+	console.log("Consultando todos Rol.");
+	permitir_todo(res);
+
+	connection.query("SELECT * from Rol;", function (err, rows, fields) {
+		if (err) {
+			res.status(100);
+			res.send("Error al consultar las categorias.");
+		} else if (rows.length != 0) {
+			res.status(200);
+			res.json(rows);
+		} else {
+			res.status(100);
+			res.send("No hay categoria registradas.");
+		}
+	});
+});
+
+
+app.post('/rol/add/:Nombre', function (req, res) {
+	console.log("Entro al metodo de insertar rol");
+	permitir_todo(res);
+	var Nombre = req.params.Nombre;
+	if (!!Nombre) {
+		var sql = "INSERT INTO Rol(Nombre) VALUES(?)";
+		console.log(sql);
+		connection.query(sql, [Nombre], function (err, rows) {
+			if (err) {
+				res.status(100);
+				res.send("Error: " + err);
+			} else {
+				var aql = "SELECT * from Rol WHERE Nombre='" + Nombre + "';";
+				connection.query(aql, function (err, rows, fields) {
+					if (err) {
+						console.log("Error al realizar la consulta, " + err);
+						res.send("Error al realizar la consulta, " + err);
+					} else if (rows.length != 0) {
+						console.log("Filas consultadas: " + rows);
+						res.json(rows);
+					}
+				});
+			}
+		});
+	}
+});
+
+
+app.get('/Clientes', function (req, res) {
+	console.log("Consultando todos clientes.");
+	permitir_todo(res);
+
+	connection.query("SELECT * from Cliente INNER JOIN Persona ON Persona.idPersona = Cliente.fk_idPersona ", function (err, rows, fields) {
+		if (err) {
+			res.status(100);
+			res.send("Error al consultar clientes.");
+		} else if (rows.length != 0) {
+			res.status(200);
+			res.json(rows);
+		} else {
+			res.status(100);
+			res.send("No hay categoria registradas.");
+		}
+	});
+});
+
+app.post('/cliente/add/:Nombre1/:Nombre2/:Apellido1/:Apellido2/:Direccion/:Celular/:Correo/:fk_idGenero', function (req, res) {
+	console.log("Entro al metodo de insertar cliente");
+	permitir_todo(res);
+	var Nombre1 = req.params.Nombre1;
+	var Nombre2 = req.params.Nombre2;
+	var Apellido1 = req.params.Apellido1;
+	var Apellido2 = req.params.Apellido2;
+	var Direccion = req.params.Direccion;
+	var Celular = req.params.Celular;
+	var Correo = req.params.Correo;
+	var Ciudad = req.params.Ciudad;
+	var fk_idGenero = req.params.fk_idGenero;
+
+	if (!!Nombre1) {
+		var sql = "INSERT INTO Persona(Nombre1,Nombre2,Apellido1,Apellido2,Direccion,Celular,Correo,Ciudad,fk_idGenero) VALUES(?,?,?,?,?,?,?,?,?)";
+		connection.query(sql, [Nombre1, Nombre2, Apellido1, Apellido2, Direccion, Celular, Correo, Ciudad, fk_idGenero], function (err, rows) {
+			if (err) {
+				res.status(100);
+				res.send("Error: " + err);
+			} else {
+				var aql = "SELECT idPersona from Persona WHERE Nombre1='" + Nombre1 + "' && Nombre2='" + Nombre2 + "' && Correo='" + Correo + "';";
+				console.log("CONSULTA DE PERSONA: " + aql);
+				connection.query(aql, function (err, rows, fields) {
+					if (err) {
+						console.log("Error al realizar la consulta, " + err);
+						res.send("Error al realizar la consulta, " + err);
+					} else if (rows.length != 0) {
+						console.log("Filas consultadas: " + rows[0]);
+
+						var idPersona = rows[0].idPersona;
+						//INSERTAR CLIENTE
+						var sql = "INSERT INTO Cliente(fk_idPersona) VALUES('" + idPersona + "');";
+						console.log(sql);
+						connection.query(sql, function (err, rows) {
+							if (err) {
+								res.status(100);
+								res.send("Error: " + err);
+							} else {
+								res.status(100);
+								res.send("Cliente registrado con exito.");
+							}
+						});
+					}
+				});
+			}
 		});
 	}
 });
