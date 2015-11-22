@@ -272,38 +272,150 @@ app.post('/cliente/add/:Nombre1/:Nombre2/:Apellido1/:Apellido2/:Direccion/:Celul
 	}
 });
 
-
-//Consultar un usuario por su id
-app.get('/cuenta/:id', function (req, res) {
+app.post('/persona/add/:Nombre1/:Nombre2/:Apellido1/:Apellido2/:Direccion/:Celular/:Correo/:fk_idGenero', function (req, res) {
+	console.log("Entro al metodo de insertar cliente");
 	permitir_todo(res);
-	console.log("Consultando usuario por id");
+	var Nombre1 = req.params.Nombre1;
+	var Nombre2 = req.params.Nombre2;
+	var Apellido1 = req.params.Apellido1;
+	var Apellido2 = req.params.Apellido2;
+	var Direccion = req.params.Direccion;
+	var Celular = req.params.Celular;
+	var Correo = req.params.Correo;
+	var Ciudad = req.params.Ciudad;
+	var fk_idGenero = req.params.fk_idGenero;
 
-	var data = {
-		"error": 1,
-		"usuarios": ""
-	};
-
-	var idCuenta = req.params.id;
-	console.log("id: " + idCuenta);
-
-	if (!!idCuenta) {
-		connection.query("SELECT * from genero WHERE idCuenta=" + idCuenta, function (err, rows, fields) {
-			if (rows) {
-				data["error"] = 0;
-				data["usuarios"] = rows[0];
-				res.json(data);
-			} else {
-				data["usuarios"] = 'No usuarios Found..';
+	if (!!Nombre1) {
+		var sql = "INSERT INTO Persona(Nombre1,Nombre2,Apellido1,Apellido2,Direccion,Celular,Correo,Ciudad,fk_idGenero) VALUES(?,?,?,?,?,?,?,?,?)";
+		connection.query(sql, [Nombre1, Nombre2, Apellido1, Apellido2, Direccion, Celular, Correo, Ciudad, fk_idGenero], function (err, rows) {
+			if (err) {
 				res.status(100);
-				res.json(data);
+				res.send("Error: " + err);
+			} else {
+				res.status(100);
+				res.send("Persona registrada con exito.");
 			}
 		});
-	} else {
-		data["usuarios"] = "Por favor verifica los datos de entrada";
-		res.status(500);
-		res.json(data);
 	}
 });
+
+
+app.get('/productos', function (req, res) {
+	console.log("Consultando todos productos.");
+	permitir_todo(res);
+
+	connection.query("SELECT * from Producto;", function (err, rows, fields) {
+		if (err) {
+			res.status(100);
+			res.send("Error al consultar producto.");
+		} else if (rows.length != 0) {
+			res.status(200);
+			res.json(rows);
+		} else {
+			res.status(100);
+			res.send("No hay productos registradas.");
+		}
+	});
+});
+
+
+app.post('/producto/add/:Nombre/:Medida/:IVA/:fk_idCategoria', function (req, res) {
+	console.log("Entro al metodo de insertar producto");
+	permitir_todo(res);
+	var Nombre = req.params.Nombre;
+	var Medida = req.params.Medida;
+	var IVA = req.params.IVA;
+	var fk_idCategoria = req.params.fk_idCategoria;
+
+	if (!!Nombre && !!fk_idCategoria) {
+		var sql = "INSERT INTO Producto(Nombre, Medida, IVA, fk_idCategoria) VALUES(?,?,?,?)";
+		console.log(sql);
+		connection.query(sql, [Nombre, Medida, IVA, fk_idCategoria], function (err, rows) {
+			if (err) {
+				res.status(100);
+				res.send("Error: " + err);
+			} else {
+				var aql = "SELECT * from Producto;";
+				connection.query(aql, function (err, rows, fields) {
+					if (err) {
+						console.log("Error al realizar la consulta, " + err);
+						res.send("Error al realizar la consulta, " + err);
+					} else if (rows.length != 0) {
+						console.log("Filas consultadas: " + rows);
+						res.json(rows);
+					}
+				});
+			}
+		});
+	}
+});
+
+
+app.get('/empresas', function (req, res) {
+	console.log("Consultando todos Empresa.");
+	permitir_todo(res);
+
+	connection.query("SELECT * from Empresa;", function (err, rows, fields) {
+		if (err) {
+			res.status(100);
+			res.send("Error al consultar empresa.");
+		} else if (rows.length != 0) {
+			res.status(200);
+			res.json(rows);
+		} else {
+			res.status(100);
+			res.send("No hay empresa registradas.");
+		}
+	});
+});
+
+
+app.post('/empresa/add/:Nombre/:RegistroDIAN/:Correo', function (req, res) {
+	console.log("Entro al metodo de insertar empresa");
+	permitir_todo(res);
+	var Nombre = req.params.Nombre;
+	var RegistroDIAN = req.params.RegistroDIAN;
+	var Correo = req.params.Correo;
+
+	if (!!Nombre && !!RegistroDIAN && !!Correo) {
+		var sql = "INSERT INTO Empresa(Nombre, RegistroDIAN, Correo) VALUES(?,?,?);";
+		console.log(sql);
+		connection.query(sql, [Nombre, RegistroDIAN, Correo], function (err, rows) {
+			if (err) {
+				res.status(100);
+				res.send("Error: " + err);
+			} else {
+				res.status(500);
+				res.send("Insertado con exito.");
+			}
+		});
+	}
+});
+
+
+
+
+
+
+
+app.get('/sucursales', function (req, res) {
+	console.log("Consultando todos sucursales.");
+	permitir_todo(res);
+	connection.query("SELECT * from Sucursal;", function (err, rows, fields) {
+		if (err) {
+			res.status(100);
+			res.send("Error al consultar las categorias.");
+		} else if (rows.length != 0) {
+			res.status(200);
+			res.json(rows);
+		} else {
+			res.status(100);
+			res.send("No hay categoria registradas.");
+		}
+	});
+});
+
+
 
 /**Iniciar sesion:
  * Consultar un usuario por email y contrasenia
@@ -341,14 +453,11 @@ app.get('/usuarios/auth/:email/:pass', function (req, res) {
 	}
 });
 
-var persona = 'persona';
-
-//Listar todos las personas
 app.get('/personas', function (req, res) {
 	console.log("Consultando todas las personas.");
 	permitir_todo(res);
 
-	connection.query("SELECT * from " + persona, function (err, rows, fields) {
+	connection.query("SELECT * from Persona;", function (err, rows, fields) {
 		if (err) {
 			res.status(100);
 			res.send("Error al consultar personas.");
@@ -361,388 +470,6 @@ app.get('/personas', function (req, res) {
 		}
 	});
 });
-
-app.post('/persona/insertar/:fk_idTipoDocumento/:NDocumento/:Nombres/:Apellidos/:Telefono/:Correo/:fk_idPrograma', function (req, res) {
-	console.log("Entro al metodo de insertar persona");
-
-	permitir_todo(res);
-	//variables de persona
-	var fk_idTipoDocumento = req.params.fk_idTipoDocumento;
-	var NDocumento = req.params.NDocumento;
-	var Nombres = req.params.Nombres;
-	var Apellidos = req.params.Apellidos;
-	var Telefono = req.params.Telefono;
-	var Correo = req.params.Correo;
-	var fk_idPrograma = req.params.fk_idPrograma;
-
-	var Estado = 'T';
-
-	var data = {
-		"error": 1,
-		"usuarios": ""
-	};
-
-	if (!!fk_idTipoDocumento && !!NDocumento && !!Nombres && !!Nombres && !!Apellidos && !!Telefono
-		&& !!Correo && !!fk_idPrograma && !!Estado) {
-
-		//Personas
-		var insert_persona = "INSERT INTO " + persona + "(TDocumento,NDocumento,Nombres,Apellidos,Telefono,Correo,FK_idPrograma) VALUES(?,?,?,?,?,?,?)";
-		connection.query(insert_persona, [fk_idTipoDocumento, NDocumento, Nombres, Apellidos, Telefono, Correo, fk_idPrograma], function (err, rows) {
-			if (err) {
-				data["usuarios"] = "Error Adding data, rollback aplicado." + err;
-				console.log(data["usuarios"]);
-				res.status(500);
-				res.json(data);
-				//Se sale
-			} else {
-				console.log("Se insertaron los datos de persona.");
-			}
-										
-			//Si llega hasta acá es porque ingresó la persona. Procedemos a consultar el ID de esa persona.
-			var sql = "SELECT * from " + persona + " WHERE TDocumento='" + fk_idTipoDocumento + "' && NDocumento='" + NDocumento + "' && Nombres='" + Nombres + "' && Apellidos='" + Apellidos + "' && Telefono='" + Telefono + "' && Correo='" + Correo + "' && fk_idPrograma='" + fk_idPrograma + "';";
-			console.log("SQL: " + sql);
-			connection.query(sql, function (err, rows, fields) {
-				if (err) {
-					data["usuarios"] = "Error al realizar la consulta, " + err;
-					console.log(data["usuarios"]);
-					res.json(data);
-				} else if (rows.length != 0) {
-					console.log("Filas consultadas: " + rows);
-					res.json(rows);
-				} else {
-					console.log("Error al iniciar sesion: " + rows);
-					data["usuarios"] = "No se encontró un usuario con esas credenciales.";
-					res.json(data);
-				}
-			});
-		});
-	} else {
-		data["usuarios"] = "Por favor, debes ingresar todos los datos requeridos correctamente.";
-		var sep = '/';
-		data["resultado"] = fk_idTipoDocumento + sep + NDocumento + sep + Nombres + sep + Nombres + sep + Apellidos + sep + Telefono + sep + Correo + sep + fk_idPrograma + sep + fk_idPersona + sep + Estado;
-		console.log(data["usuarios"]);
-		res.json(data);
-	}
-});
-
-
-app.post('/persona/actualizar/:idPersona/:fk_idTipoDocumento/:NDocumento/:Nombres/:Apellidos/:Telefono/:Correo/:fk_idPrograma', function (req, res) {
-	console.log("Entro al metodo de actualizar persona");
-
-	permitir_todo(res);
-	//variables de persona
-	var idPersona = req.params.idPersona;
-	var fk_idTipoDocumento = req.params.fk_idTipoDocumento;
-	var NDocumento = req.params.NDocumento;
-	var Nombres = req.params.Nombres;
-	var Apellidos = req.params.Apellidos;
-	var Telefono = req.params.Telefono;
-	var Correo = req.params.Correo;
-	var fk_idPrograma = req.params.fk_idPrograma;
-
-	if (!!fk_idTipoDocumento && !!NDocumento && !!Nombres && !!Nombres && !!Apellidos && !!Telefono
-		&& !!Correo && !!fk_idPrograma) {
-
-		//Personas
-		var sql = "UPDATE " + persona + " SET TDocumento=?,NDocumento=?,Nombres=?,Apellidos=?,Telefono=?,Correo=?,FK_idPrograma=? WHERE idPersona=?";
-		connection.query(sql, [fk_idTipoDocumento, NDocumento, Nombres, Apellidos, Telefono, Correo, fk_idPrograma, idPersona], function (err, rows) {
-			if (err) {
-				res.status(100);
-				res.send("Error Adding data, rollback aplicado." + err);
-			} else {
-				console.log("Se actualizaron los datos de persona.");
-			}
-		});
-	} else {
-		res.status(100);
-		res.send("Por favor, debes ingresar todos los datos requeridos correctamente.");
-	}
-});
-
-
-//Ingresar usuario
-app.post('/cuenta/insertar/:NUsuario/:Contrasenia/:FK_idRol/:FK_idPersona', function (req, res) {
-	console.log("Entro al metodo de insertar persona");
-
-	permitir_todo(res);
-	//variables de cuenta
-	var NUsuario = req.params.NUsuario;
-	var Contrasenia = req.params.Contrasenia;
-	var FK_idRol = req.params.FK_idRol;
-	var FK_idPersona = req.params.FK_idPersona;
-
-	var Estado = 'T';
-
-	var data = {
-		"error": 1,
-		"cuenta": ""
-	};
-
-	if (!!NUsuario && !!Contrasenia && !!FK_idRol && !!FK_idPersona && !!Estado) {
-		var insert_persona = "INSERT INTO " + cuenta + "(NUsuario,Contrasenia,FK_idRol,FK_idPersona,Estado) VALUES(?,?,?,?,?,now())";
-		connection.query(insert_persona, [NUsuario, Contrasenia, FK_idRol, FK_idPersona, Estado], function (err, rows) {
-			if (err) {
-				data["cuenta"] = "Error Adding data, rollback aplicado." + err;
-				console.log(data["cuenta"]);
-				res.status(500);
-				res.json(data);
-				//Se sale
-			} else {
-				console.log("Se insertaron los datos de persona.");
-			}
-										
-			//Si llega hasta acá es porque ingresó la persona. Procedemos a consultar el ID de esa persona.
-			var sql = "SELECT * from " + cuenta + " WHERE NUsuario='" + NUsuario + "' && Contrasenia='" + Contrasenia + "' && FK_idRol='" + FK_idRol + "' && FK_idPersona='" + FK_idPersona + "' && Estado='" + Estado + "';";
-			console.log("SQL: " + sql);
-			connection.query(sql, function (err, rows, fields) {
-				if (err) {
-					data["cuenta"] = "Error al realizar la consulta, " + err;
-					console.log(data["cuenta"]);
-					res.json(data);
-					//Se sale
-				} else if (rows.length != 0) {
-					console.log("Filas consultadas: " + rows);
-					res.json(rows);
-				} else {
-					console.log("Error al iniciar sesion: " + rows);
-					data["cuenta"] = "No se encontró un usuario con esas credenciales.";
-					res.json(data);
-				}
-			});
-		});
-	} else {
-		data["usuarios"] = "Por favor, debes ingresar todos los datos requeridos correctamente.";
-		console.log(data["usuarios"]);
-		res.json(data);
-	}
-});
-
-/**
-		 *                              Programas en donde estudian
-		 */
-
-//Listar todos los programas
-app.get('/programas', function (req, res) {
-	var data = {
-		"error": 1,
-		"programas": ""
-	};
-
-	connection.query("SELECT * from " + programa, function (err, rows, fields) {
-		if (rows.length != 0) {
-			data["error"] = 0;
-			data["programas"] = rows;
-			res.json(data);
-		} else {
-			data["programas"] = 'No programas Found..';
-			res.json(data);
-		}
-	});
-});
-
-
-
-/**
- * 												Envios
- */
-
-//Listar todos las personas
-var envio = "envios";
-
-app.get('/envios', function (req, res) {
-	console.log("Consultando todos los envios.");
-	permitir_todo(res);
-
-	connection.query("SELECT * from " + envio, function (err, rows, fields) {
-		if (err) {
-			res.status(100);
-			res.send("Error al consultar envios.");
-		} else if (rows) {
-			if (rows)
-				res.status(200);
-			res.json(rows);
-		} else {
-			res.status(100);
-			res.send("No hay envios registrados.");
-		}
-	});
-});
-
-app.get('/envios/:idUsuario', function (req, res) {
-	console.log("Consultando todos los envios.");
-	permitir_todo(res);
-
-	connection.query("SELECT * from " + envio, function (err, rows, fields) {
-		if (err) {
-			res.status(100);
-			res.send("Error al consultar envios.");
-		} else if (rows.length != 0) {
-			res.status(200);
-			res.json(rows);
-		} else {
-			res.status(100);
-			res.send("No hay envios registrados.");
-		}
-	});
-});
-
-var grupo = "grupos";
-
-app.get('/grupos', function (req, res) {
-	console.log("Consultando todos los grupos.");
-	permitir_todo(res);
-
-	connection.query("SELECT * from " + grupo, function (err, rows, fields) {
-		if (err) {
-			res.status(100);
-			res.send("Error al consultar grupos.");
-		} else if (rows) {
-			res.status(200);
-			res.json(rows);
-		} else {
-			res.status(100);
-			res.send("No hay grupos registrados.");
-		}
-	});
-});
-
-//Ingresar grupo
-app.post('/grupo/insertar/:NombreGrupo/:UserGrupo/:Contrasenia', function (req, res) {
-	console.log("Entro al metodo de insertar grupo.");
-
-	permitir_todo(res);
-
-	var NombreGrupo = req.params.NombreGrupo;
-	var Contrasenia = req.params.Contrasenia;
-	var UserGrupo = req.params.UserGrupo;
-	var FK_idRol = 2; //Rol de estudiante
-	var EstadoGrupo = 'T';
-
-	if (!!NombreGrupo && !!Contrasenia && !!UserGrupo && !!EstadoGrupo) {
-		var sql = "INSERT INTO " + grupo + "(NombreGrupo,UserGrupo,Contrasenia,EstadoGrupo,FK_idRol,FechaInscGrupo) VALUES(?,?,?,?,?,now())";
-		connection.query(sql, [NombreGrupo, UserGrupo, Contrasenia, EstadoGrupo, FK_idRol], function (err, rows) {
-			if (err) {
-				res.status(100);
-				res.send("Error Adding data, rollback aplicado." + err);
-			} else {
-				console.log("Se insertaron los datos de persona.");
-			}
-
-			var sql = "SELECT * from " + grupo + " WHERE NombreGrupo='" + NombreGrupo + "' && Contrasenia='" + Contrasenia + "' && FK_idRol='" + FK_idRol + "' && EstadoGrupo='" + EstadoGrupo + "';";
-			console.log("SQL: " + sql);
-			connection.query(sql, function (err, rows, fields) {
-				if (err) {
-					res.status(100);
-					res.send("Error al realizar la consulta, " + err);
-				} else if (rows.length != 0) {
-					console.log("Filas consultadas: " + rows);
-					res.json(rows);
-				} else {
-					res.status(100);
-					res.send("No se encontraron datos de " + grupo);
-				}
-			});
-		});
-	} else {
-		res.status(404);
-		res.send("Por favor, debes ingresar todos los datos requeridos correctamente.");
-	}
-});
-
-
-//														BASE
-/*app.get('/users/:id([0-9]+)/:action(edit|delete|create)', function (req, res) {
-	res.write('handler: /users/:id \n');
-	res.write('parametros: \n');
-	for (key in req.params) {
-		res.write('\t' + key + ' : ' + req.params[key] + '\n');
-	}
-	res.end();
-});
- */
- 
-//Ingresar integrantes de grupo
-var integrantes_grupo = "integrantesgrupo";
-
-app.post('/grupo/integrantes/insertar/:FK_idGrupo/:FK_idCompetencia/:FK_idParticipacion/:FK_idPersona?', function (req, res) {
-	console.log("Entro al metodo de insertar integrantes de grupo.");
-
-	permitir_todo(res);
-
-	var FK_idGrupo = req.params.FK_idGrupo;
-	var FK_idCompetencia = req.params.FK_idCompetencia;
-	var FK_idParticipacion = req.params.FK_idParticipacion;
-	var FK_idPersona = req.params.FK_idPersona;
-	var Estado = 'T';
-
-	m(req.params);
-
-	if (!!FK_idGrupo && !!FK_idCompetencia && !!Estado && !!FK_idParticipacion && !!FK_idPersona) {
-
-		var IDsPersonas = FK_idPersona;
-		m("- " + IDsPersonas);
-		var IDs = IDsPersonas.split(';');
-
-		var sql = "";
-
-		for (var i = 0; i < IDs.length; i++) {
-			var idPersona = IDs[i];
-			m("* " + idPersona);
-			sql += "INSERT INTO " + integrantes_grupo + "(FK_idPersona,FK_idGrupo,FK_idCompetencia,FK_idParticipacion, Estado) VALUES(" + idPersona + "," + FK_idGrupo + "," + FK_idCompetencia + "," + FK_idParticipacion + "," + Estado + ");";
-		}
-
-		m("SQL concat: " + sql.toString());
-		res.status(200);
-		res.send(" ++ " + sql);
-
-		connection.query(sql, function (err, rows, fields) {
-			if (err) {
-				res.status(100);
-				res.send("Error al realizar la consulta, " + err);
-			} else if (rows.length != 0) {
-				console.log("Filas consultadas: " + rows);
-				res.json(rows);
-			} else {
-				res.status(100);
-				res.send("No se encontraron datos de " + grupo);
-			}
-		});
-	} else {
-		res.status(404);
-		res.send("Por favor, debes ingresar todos los datos requeridos correctamente.");
-	}
-	
-	/*
-		connection.query(sql, function (err, rows) {
-			if (err) {
-				res.status(100);
-				res.send("Error Adding data, rollback aplicado." + err);
-			} else {
-				console.log("Se insertaron los datos de persona.");
-			}
-
-			var sql = "SELECT * from " + grupo + " WHERE FK_idGrupo='" + FK_idGrupo + "' && FK_idCompetencia='" + FK_idCompetencia + "' && FK_idRol='" + FK_idRol + "' && Estado='" + Estado + "';";
-			console.log("SQL: " + sql);
-			connection.query(sql, function (err, rows, fields) {
-				if (err) {
-					res.status(100);
-					res.send("Error al realizar la consulta, " + err);
-				} else if (rows.length != 0) {
-					console.log("Filas consultadas: " + rows);
-					res.json(rows);
-				} else {
-					res.status(100);
-					res.send("No se encontraron datos de " + grupo);
-				}
-			});
-		});
-	} else {
-		res.status(404);
-		res.send("Por favor, debes ingresar todos los datos requeridos correctamente.");
-	}
-	*/
-});
-
 
 app.all('*', function (req, res) {
 	res.write('Solicitud erronea: *\n');
