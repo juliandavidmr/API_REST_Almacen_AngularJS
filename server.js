@@ -393,11 +393,6 @@ app.post('/empresa/add/:Nombre/:RegistroDIAN/:Correo', function (req, res) {
 });
 
 
-
-
-
-
-
 app.get('/sucursales', function (req, res) {
 	console.log("Consultando todos sucursales.");
 	permitir_todo(res);
@@ -415,6 +410,50 @@ app.get('/sucursales', function (req, res) {
 	});
 });
 
+
+
+app.get('/proveedores', function (req, res) {
+	console.log("Consultando todos proveedores.");
+	permitir_todo(res);
+
+	connection.query("SELECT * from Proveedor;", function (err, rows, fields) {
+		if (err) {
+			res.status(100);
+			res.send("Error al consultar proveedor.");
+		} else if (rows.length != 0) {
+			res.status(200);
+			res.json(rows);
+		} else {
+			res.status(100);
+			res.send("No hay proveedor registradas.");
+		}
+	});
+});
+
+app.post('/proveedor/add/:Nombre/:Ciudad/:Direccion/:Correo/:Telefono1/:Telefono2/', function (req, res) {
+	console.log("Entro al metodo de insertar proveedor");
+	permitir_todo(res);
+	var Nombre = req.params.Nombre;
+	var Ciudad = req.params.Ciudad;
+	var Direccion = req.params.Direccion;
+	var Correo = req.params.Correo;
+	var Telefono1 = req.params.Telefono1;
+	var Telefono2 = req.params.Telefono2;
+
+	if (!!Nombre && !!Ciudad && !!Correo) {
+		var sql = "INSERT INTO Proveedor(Nombre, Ciudad, Direccion, Correo, Telefono1, Telefono2) VALUES(?,?,?,?,?,?);";
+		console.log(sql);
+		connection.query(sql, [Nombre, Ciudad, Correo, Direccion, Telefono1, Telefono2], function (err, rows) {
+			if (err) {
+				res.status(100);
+				res.send("Error: " + err);
+			} else {
+				res.status(500);
+				res.send("Insertado con exito.");
+			}
+		});
+	}
+});
 
 
 /**Iniciar sesion:
