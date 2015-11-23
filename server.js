@@ -410,6 +410,29 @@ app.get('/sucursales', function (req, res) {
 	});
 });
 
+app.post('/sucursal/add/:Nombre/:Direccion/:fk_idEmpresa', function (req, res) {
+	console.log("Entro al metodo de insertar sucursal");
+	permitir_todo(res);
+	var Nombre = req.params.Nombre;
+	var Direccion = req.params.Direccion;
+	var fk_idEmpresa = req.params.fk_idEmpresa;
+
+	if (!!Nombre && !!Direccion && !!fk_idEmpresa) {
+		var sql = "INSERT INTO Sucursal(Nombre, Direccion, fk_idEmpresa) VALUES(?,?,?);";
+		console.log(sql);
+		connection.query(sql, [Nombre, Direccion, fk_idEmpresa], function (err, rows) {
+			if (err) {
+				res.status(100);
+				res.send("Error: " + err);
+			} else {
+				res.status(500);
+				res.send("Insertado con exito.");
+			}
+		});
+	}
+});
+
+
 
 
 app.get('/proveedores', function (req, res) {
