@@ -433,8 +433,6 @@ app.post('/sucursal/add/:Nombre/:Direccion/:fk_idEmpresa', function (req, res) {
 });
 
 
-
-
 app.get('/proveedores', function (req, res) {
 	console.log("Consultando todos proveedores.");
 	permitir_todo(res);
